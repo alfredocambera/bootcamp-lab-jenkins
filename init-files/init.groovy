@@ -10,7 +10,7 @@ def hudsonRealm = new HudsonPrivateSecurityRealm(false)
 
 // Creates 'admin' user
 println "--> creating local admin user"
-hudsonRealm.createAccount('admin', 'r4nd0mP4$$W0rd')
+hudsonRealm.createAccount('admin', 'bootcamp')
 instance.setSecurityRealm(hudsonRealm)
 
 // Disables remote CLI

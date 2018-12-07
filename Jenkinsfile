@@ -1,50 +1,63 @@
 node {
-
   currentBuild.result = "SUCCESS"
+
   try {
     stage('Checkout') {
+      // Deletes any file or directory from current workspace
+      deleteDir()
+
       git 'https://github.com/boto/boto3.git'
     }
 
     stage('Prepare environment'){
       sh 'python3 -m virtualenv -p python3 .virtualenv/'
       sh 'readlink -f .virtualenv/bin/'
-      sh 'ls -al .virtualenv/bin'
       sh '. .virtualenv/bin/activate'
       sh 'pip3 install tox'
     }
 
     stage('Unit Tests'){
-      // Hack para poder generar archivo .xml con resultados
+      // Makes unit tests generate a junit compatible file for reporting
       sh 'sed -i -e \'19s/$/  \\x27--xunit-file=test-results-unit.xml\\x27,/g\' scripts/ci/run-tests'
       
-      // Ejecución de pruebas unitarias
+      // Runs unit tests
       sh 'python3 -m  tox -e py35 -- unit/'
       
-      // Ejecución de pruebas unitarias
+      // Restores 'run-tests'
       sh 'git checkout scripts/ci/run-tests'
     }
 
-    stage('Functional Tests'){
-      //sh 'python3 -m tox -e py35 -- functional/'
-    }
+    //stage('Functional Tests'){
+    //  sh 'python3 -m tox -e py35 -- functional/'
+    //}
 
-    // This should be on post
-    stage('Cleanup') {
-      // To allow junit to find the file
-      sh 'ln -s tests/test-results-unit.xml $WORKSPACE'
+    stage('Create Report') {
+      // Checks if file exists before creating symlink
+      sh 'ls tests/test-results-unit.xml && ln -s $WORKSPACE/tests/test-results-unit.xml $WORKSPACE'
       
       junit "test-results-unit.xml"
-      
-      echo 'prune and cleanup'
-      // Send email notification
-      // Send slack notification
     }
+    
   }
   catch (err) {
     currentBuild.result = "FAILURE"
-    // Send email notification
-    // Send slack notificaiton
     throw err
+  }
+
+  finally {
+
+    if (currentBuild.result == 'SUCCESS') {
+      echo 'This will run on SUCCESS'
+    }
+    else if  (currentBuild.result == 'FAILURE') {
+      echo 'This will run on FAILURE'
+    }
+    else if  (currentBuild.result == 'UNSTABLE') {
+      echo 'This will run on UNSTABLE'
+    }
+
+    if (currentBuild.previousBuild?.result != null && currentBuild.previousBuild?.result != currentBuild.result) {
+      echo 'This will run only if the state of the Pipeline has changed'
+    }
   }
 }
