@@ -1,0 +1,8 @@
+job-dsl:1.70
+git:3.9.1
+monitoring:1.74.0
+blueocean:1.9.0
+ansicolor:0.6.0
+pipeline-stage-view:2.10
+workflow-job:2.30
+xunit:2.60.3

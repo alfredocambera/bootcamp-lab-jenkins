@@ -1,0 +1,5 @@
+job-dsl:1.69
+git:3.9.1
+monitoring:1.73.0
+blueocean:1.6.0
+ansicolor:0.5.2

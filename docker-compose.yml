@@ -1,0 +1,10 @@
+version: "3.2"
+services:
+
+  jenkins:
+    container_name: jenkins
+    image: local:jenkins
+    ports:
+      - 9089:8080
+    volumes:
+      - "./jenkins-home:/var/jenkins_home"
